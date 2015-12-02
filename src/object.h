@@ -97,13 +97,13 @@ class PhysicsPlayer : public PhysicsBase
 public:
 
 
-	PhysicsPlayer();
+    PhysicsPlayer();
 
 
-	virtual ~PhysicsPlayer();
+    virtual ~PhysicsPlayer();
 
 
-	virtual void Update(Object &obj, float frameTime);
+    virtual void Update(Object &obj, float frameTime);
 
 
 private:
@@ -134,6 +134,34 @@ public:
 };
 
 
+class ControlBullet : public ControlBase
+{
+
+
+public:
+
+
+    ControlBullet(double angle, int speed);
+
+
+    virtual ~ControlBullet();
+
+
+    virtual void Update(Object &obj);
+
+
+private:
+
+
+    double angle;
+
+
+    int speed;
+
+
+};
+
+
 class Object
 {
 
@@ -141,37 +169,42 @@ class Object
 public:
 
 
-	// x, y, w, h, tex_filename
-	Object(SDL_Rect dest, GraphicsBase *gb, 
-    PhysicsBase *pb, ControlBase *cb);
+    Object(SDL_Rect dest, GraphicsBase *gb, 
+      PhysicsBase *pb, ControlBase *cb);
 
 
-	~Object();
+    ~Object();
 
 
-	void Update(SDL_Renderer *, float);
+    void Update(SDL_Renderer *ren, float frameTime);
 
 
-	SDL_Rect dest; // location of the object
+    SDL_Rect dest; // location of the object
 
 
-	double angle;
+    double angle;
 
 
-	int speed;
+    bool addBullet;
+
+
+    int speed;
+
+
+    std::vector<Object *> b;
 
 
 private:
 
 
-        // change to base class unique ptrs
-	std::unique_ptr<GraphicsBase> g;
+    // change to base class unique ptrs
+    std::unique_ptr<GraphicsBase> g;
 
 
-	std::unique_ptr<PhysicsBase> p;
+    std::unique_ptr<PhysicsBase> p;
 
 
-	std::unique_ptr<ControlBase> c;
+    std::unique_ptr<ControlBase> c;
 
 
 };

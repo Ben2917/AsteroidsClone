@@ -113,8 +113,38 @@ void ControlPlayer::Update(Object &obj)
 			obj.angle = 0;
 
 	}
+    if (keys[SDL_SCANCODE_SPACE])
+    {
+
+        obj.addBullet = true;    
+
+    }
 
 }
+
+
+ControlBullet::ControlBullet(double angle, int speed)
+{
+
+    this->angle = angle;
+
+    this->speed = speed;
+
+}
+
+
+ControlBullet::~ControlBullet(){}
+
+
+void ControlBullet::Update(Object &obj)
+{
+
+    obj.angle = angle;
+
+    obj.speed = speed;
+
+}
+
 
 
 Object::Object(SDL_Rect dest, GraphicsBase *gb, 
@@ -128,24 +158,56 @@ Object::Object(SDL_Rect dest, GraphicsBase *gb,
 
         speed = 0;
 
+        addBullet = false;
+
 }
 
 
-Object::~Object() {}
+Object::~Object() 
+{
+
+    // Delete any remaining bullets
+    for(unsigned int i = 0; i < b.size(); ++i)
+    {
+
+        delete b[i];
+
+        b[i] = 0;
+
+    }
+
+}
 
 
 void Object::Update(SDL_Renderer *ren, float frameTime)
 {
 
-	c.get()->Update(*this);
-
-        // physics component should resolve this	
-	// dest.x += sin(angle * PI / 180) * (speed * frameTime);
-
-	// dest.y -= cos(angle * PI / 180) * (speed * frameTime);
+    c.get()->Update(*this);
 	
-	p.get()->Update(*this, frameTime);
+    p.get()->Update(*this, frameTime);
 
-	g.get()->Update(*this, ren);
+    // need a bullet handler component
+    if(addBullet)
+    {
+
+        b.push_back(new Object(
+          {dest.x / 2, dest.y / 2, 2, 2}, 
+          new GraphicsPlayer(ren, "square.png"), 
+          new PhysicsPlayer(), new ControlBullet(angle, speed))); 
+
+        addBullet = false;
+
+    }
+
+    for(unsigned int i = 0; i < b.size(); ++i)
+    {
+
+        b[i]->Update(ren, frameTime);
+
+    }
+
+    g.get()->Update(*this, ren);
+
+    // check bullet collision    
 
 }
