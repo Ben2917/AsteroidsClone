@@ -80,45 +80,28 @@ ControlPlayer::~ControlPlayer() {}
 void ControlPlayer::Update(Object &obj)
 {
 
-	const Uint8* keys = SDL_GetKeyboardState(NULL);
+    const Uint8* keys = SDL_GetKeyboardState(NULL);
 
-	if (keys[SDL_SCANCODE_UP])
-	{
-
-		// could add gradual acceleration...
-		obj.speed = 320;
-
-	}
-	if (!keys[SDL_SCANCODE_UP])
-	{
-		// ...and decceleration
-		obj.speed = 0;
-
-	}
-	if (keys[SDL_SCANCODE_LEFT])
-	{
-
-		// rotate left
-		obj.angle -= 3;
-
-		if (obj.angle <= 0)
-			obj.angle = 360;
-
-	}
-	if (keys[SDL_SCANCODE_RIGHT])
-	{
-		obj.angle += 3;
-
-		if (obj.angle >= 360)
-			obj.angle = 0;
-
-	}
-    if (keys[SDL_SCANCODE_SPACE])
+    if (keys[SDL_SCANCODE_UP]) { obj.speed = 320; }
+    if (!keys[SDL_SCANCODE_UP]) { obj.speed = 0; }
+    if (keys[SDL_SCANCODE_LEFT])
     {
+ 
+        obj.angle -= 3;
 
-        obj.addBullet = true;    
+        if (obj.angle <= 0)
+            obj.angle = 360;
 
     }
+    if (keys[SDL_SCANCODE_RIGHT])
+    {
+        obj.angle += 3;
+
+        if (obj.angle >= 360)
+		obj.angle = 0;
+
+    }
+    if (keys[SDL_SCANCODE_SPACE]) { obj.addBullet = true; }
 
 }
 
@@ -179,6 +162,16 @@ Object::~Object()
 }
 
 
+void Object::GetPos(int *x, int *y)
+{
+
+    *x = dest.x;
+
+    *y = dest.y;
+
+}
+
+
 void Object::Update(SDL_Renderer *ren, float frameTime)
 {
 
@@ -191,9 +184,9 @@ void Object::Update(SDL_Renderer *ren, float frameTime)
     {
 
         b.push_back(new Object(
-          {dest.x / 2, dest.y / 2, 2, 2}, 
+          {dest.x + (dest.w/ 2), dest.y + (dest.h / 2), 2, 2}, 
           new GraphicsPlayer(ren, "square.png"), 
-          new PhysicsPlayer(), new ControlBullet(angle, speed))); 
+          new PhysicsPlayer(), new ControlBullet(angle, 640))); 
 
         addBullet = false;
 
@@ -203,6 +196,24 @@ void Object::Update(SDL_Renderer *ren, float frameTime)
     {
 
         b[i]->Update(ren, frameTime);
+
+    }
+
+    // cull bullets
+    for(unsigned int i = 0; i < b.size(); ++i)
+    {
+
+        int tempX, tempY;
+
+        b[i]->GetPos(&tempX, &tempY);
+ 
+        if(tempX > WIN_WIDTH || tempX < 0
+            || tempY > WIN_HEIGHT || tempY < 0)
+        {
+
+            b.erase(b.begin() + i);
+
+        }   
 
     }
 

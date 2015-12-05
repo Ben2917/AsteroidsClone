@@ -179,6 +179,9 @@ public:
     void Update(SDL_Renderer *ren, float frameTime);
 
 
+    void GetPos(int *x, int *y);
+
+
     SDL_Rect dest; // location of the object
 
 
